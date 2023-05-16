@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using MediatR;
+﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rectangles.Application.Contracts.Models;
 using Rectangles.Application.Contracts.Requests;
@@ -10,7 +10,8 @@ namespace Rectangles.WebUI.Controllers;
 /// Rectangles management.
 /// </summary>
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
+[Authorize]
 public class RectanglesController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -35,4 +36,14 @@ public class RectanglesController : ControllerBase
         x is null || y is null
         ? _mediator.Send(new GetAllRectanglesRequest())
         : _mediator.Send(new GetRectanglesContainingPointRequest(x.Value, y.Value));
+
+    /// <summary>
+    /// Search for rectangles containing points.
+    /// </summary>
+    /// <param name="points">Points collection.</param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("search")]
+    public Task<IEnumerable<RectangleDto>> SearchForRectangles([FromBody] PointDto[] points) =>
+        _mediator.Send(new SearchForRectanglesContainingPointsRequest(points));
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 using Rectangles.Db.Contracts.Models;
 using Rectangles.Db.Contracts.Repositories;
 using Rectangles.Db.Mappers;
@@ -46,18 +47,33 @@ internal sealed class RectanglesRepository : IRectanglesRepository
     {
         if (points is null || !points.Any()) return Enumerable.Empty<Rectangle>();
 
-        var closeEntitiesQuery = _context.Rectangles
-            .AsNoTracking();
-
-        foreach (var (x, y) in points)
+        var expressions = points.Select(p =>
         {
-            closeEntitiesQuery = closeEntitiesQuery.Where(r => (x >= r.X1 || x >= r.X2 || x >= r.X3 || x >= r.X4)
-                                                               && (x <= r.X1 || x <= r.X2 || x <= r.X3 || x <= r.X4)
-                                                               && (y >= r.Y1 || y >= r.Y2 || y >= r.Y3 || y >= r.Y4)
-                                                               && (y <= r.Y1 || y <= r.Y2 || y <= r.Y3 || y <= r.Y4));
+            var x = p.X;
+            var y = p.Y;
+
+            Expression<Func<RectangleEntity, bool>> expression = r =>
+                (x >= r.X1 || x >= r.X2 || x >= r.X3 || x >= r.X4)
+                && (x <= r.X1 || x <= r.X2 || x <= r.X3 || x <= r.X4)
+                && (y >= r.Y1 || y >= r.Y2 || y >= r.Y3 || y >= r.Y4)
+                && (y <= r.Y1 || y <= r.Y2 || y <= r.Y3 || y <= r.Y4);
+            return expression;
+        }).ToArray();
+
+        var parameter = Expression.Parameter(typeof(RectangleEntity), "r");
+        Expression whereExpression = Expression.Invoke(expressions[0], parameter);
+        for (var i = 1; i < expressions.Length; ++i)
+        {
+            whereExpression = Expression.OrElse(whereExpression,
+                Expression.Invoke(expressions[i], parameter));
         }
 
-        var closeEntities = await closeEntitiesQuery.ToArrayAsync(cancellationToken);
+        var whereLambda = Expression.Lambda<Func<RectangleEntity, bool>>(whereExpression, parameter);
+
+        var closeEntities = await _context.Rectangles
+            .AsNoTracking()
+            .Where(whereLambda)
+            .ToArrayAsync(cancellationToken);
 
         return closeEntities.Select(_mapper.Map);
     }

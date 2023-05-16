@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Rectangles.Db.Contracts.Models;
 
 namespace Rectangles.Db.Models;
 
-internal sealed class RectanglesContext : IdentityDbContext<IdentityUser<Guid>, IdentityRole<Guid>, Guid>
+internal sealed class RectanglesContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
 {
     public DbSet<RectangleEntity> Rectangles { get; set; }
 

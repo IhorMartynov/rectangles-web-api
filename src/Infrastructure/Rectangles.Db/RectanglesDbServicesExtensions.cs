@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Rectangles.Db.Contracts.Models;
 using Rectangles.Db.Contracts.Repositories;
 using Rectangles.Db.Mappers;
 using Rectangles.Db.Models;
@@ -19,6 +21,15 @@ public static class RectanglesDbServicesExtensions
         services.AddSingleton<IRectangleMapper, RectangleMapper>();
 
         services.AddTransient<IRectanglesRepository, RectanglesRepository>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddIdentityAuthentication(this IServiceCollection services)
+    {
+        services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
+            .AddRoles<IdentityRole<Guid>>()
+            .AddEntityFrameworkStores<RectanglesContext>();
 
         return services;
     }

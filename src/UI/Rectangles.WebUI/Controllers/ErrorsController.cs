@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Rectangles.WebUI.Controllers;
@@ -7,6 +8,7 @@ namespace Rectangles.WebUI.Controllers;
 /// Errors reporting.
 /// </summary>
 [ApiController]
+[AllowAnonymous]
 public sealed class ErrorsController : ControllerBase
 {
 
