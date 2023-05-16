@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Rectangles.Db.Models;
 
@@ -11,9 +12,11 @@ using Rectangles.Db.Models;
 namespace Rectangles.Db.Migrations
 {
     [DbContext(typeof(RectanglesContext))]
-    partial class RectanglesContextModelSnapshot : ModelSnapshot
+    [Migration("20230516235105_AddedIndexesMigration")]
+    partial class AddedIndexesMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
