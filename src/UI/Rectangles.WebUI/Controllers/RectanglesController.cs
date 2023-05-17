@@ -41,9 +41,9 @@ public class RectanglesController : ControllerBase
     /// Search for rectangles containing points.
     /// </summary>
     /// <param name="points">Points collection.</param>
-    /// <returns></returns>
+    /// <returns>A collection of points and rectangles.</returns>
     [HttpPost]
     [Route("search")]
-    public Task<IEnumerable<RectangleDto>> SearchForRectangles([FromBody] PointDto[] points) =>
+    public Task<IEnumerable<RectanglesContainingPointDto>> SearchForRectangles([FromBody] PointDto[] points) =>
         _mediator.Send(new SearchForRectanglesContainingPointsRequest(points));
 }

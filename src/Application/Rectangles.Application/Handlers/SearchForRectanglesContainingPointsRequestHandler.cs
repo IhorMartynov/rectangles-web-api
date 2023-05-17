@@ -9,7 +9,7 @@ using Rectangles.Db.Contracts.Repositories;
 namespace Rectangles.Application.Handlers;
 
 public sealed class SearchForRectanglesContainingPointsRequestHandler
-    : IRequestHandler<SearchForRectanglesContainingPointsRequest, IEnumerable<RectangleDto>>
+    : IRequestHandler<SearchForRectanglesContainingPointsRequest, IEnumerable<RectanglesContainingPointDto>>
 {
     private readonly IRectanglesRepository _rectanglesRepository;
     private readonly IRectangleDtoMapper _mapper;
@@ -25,7 +25,7 @@ public sealed class SearchForRectanglesContainingPointsRequestHandler
         _rectangleFigureFactory = rectangleFigureFactory;
     }
 
-    public async Task<IEnumerable<RectangleDto>> Handle(SearchForRectanglesContainingPointsRequest request,
+    public async Task<IEnumerable<RectanglesContainingPointDto>> Handle(SearchForRectanglesContainingPointsRequest request,
         CancellationToken cancellationToken)
     {
         var points = request.Points
@@ -34,18 +34,24 @@ public sealed class SearchForRectanglesContainingPointsRequestHandler
 
         var rectangleEntities = await _rectanglesRepository.GetRectanglesCloseToPointsAsync(points, cancellationToken);
 
-        var rectangles = new List<RectangleDto>();
+        var pointsWithRectanglesDictionary = points.ToDictionary(p => p, p => new List<RectangleDto>());
         foreach (var rectangleEntity in rectangleEntities)
         {
             var rectangleFigure = _rectangleFigureFactory.Create(rectangleEntity.Vertex1, rectangleEntity.Vertex2,
                 rectangleEntity.Vertex3, rectangleEntity.Vertex4);
 
-            if (points.Any(rectangleFigure.ContainsPoint))
+            var pointsInside = points.Where(rectangleFigure.ContainsPoint).ToArray();
+
+            if (pointsInside.Length <= 0) continue;
+
+            foreach (var point in pointsInside)
             {
-                rectangles.Add(_mapper.Map(rectangleEntity));
+                pointsWithRectanglesDictionary[point].Add(_mapper.Map(rectangleEntity));
             }
         }
 
-        return rectangles;
+        return pointsWithRectanglesDictionary.Select(p =>
+                new RectanglesContainingPointDto(new PointDto(p.Key.X, p.Key.Y), p.Value))
+            .ToArray();
     }
 }

@@ -6,7 +6,7 @@ namespace Rectangles.Application.Contracts.Requests;
 /// <summary>
 /// Search for rectangles containing points.
 /// </summary>
-public sealed class SearchForRectanglesContainingPointsRequest : IRequest<IEnumerable<RectangleDto>>
+public sealed class SearchForRectanglesContainingPointsRequest : IRequest<IEnumerable<RectanglesContainingPointDto>>
 {
     public PointDto[] Points { get; set; }
 
