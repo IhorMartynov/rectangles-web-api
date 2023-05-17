@@ -18,3 +18,16 @@ coordinate falls into
 - Any further design considerations assuming scaling this system and integrations with
 external consumers.
 - Wrap the executable(s) into Docker container.
+
+# Testing
+The api/rectangles endpoints requires authentication.
+You can get authentication token using the /api/account/login endpoint with the following credentials:
+
+``` json
+{
+  "userName": "admin",
+  "password": "Qwerty@123"
+}
+```
+
+Then use returned token in the Authorization: Bearer <token> header.
